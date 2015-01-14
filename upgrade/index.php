@@ -1,5 +1,5 @@
 <?php
-/**
+/*
 * 2007-2014 PrestaShop
 *
 * NOTICE OF LICENSE
@@ -18,26 +18,18 @@
 * versions in the future. If you wish to customize PrestaShop for your
 * needs please refer to http://www.prestashop.com for more information.
 *
-*  @author    PrestaShop SA <contact@prestashop.com>
-*  @copyright 2007-2014 PrestaShop SA
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+*  @author PrestaShop SA <contact@prestashop.com>
+*  @copyright  2007-2014 PrestaShop SA
+*  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-class GanalyticsAjaxModuleFrontController extends ModuleFrontController
-{
-	public $ssl = true;
-	/*
-	 * @see FrontController::initContent()
-	 */
-	public function initContent()
-	{
-		parent::initContent();
+header('Expires: Mon, 26 Jul 1998 05:00:00 GMT');
+header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
 
-		$order = new Order((int)Tools::getValue('orderid'));
-		if (!Validate::isLoadedObject($order) || $order->id_customer != $this->context->cookie->id_customer)
-			die;
-		Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET sent = 1, date_add = NOW() WHERE id_order = '.(int)Tools::getValue('orderid').' LIMIT 1');
-		die;
-	}
-}
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
+
+header('Location: ../');
+exit;

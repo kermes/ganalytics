@@ -24,20 +24,21 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-class GanalyticsAjaxModuleFrontController extends ModuleFrontController
-{
-	public $ssl = true;
-	/*
-	 * @see FrontController::initContent()
-	 */
-	public function initContent()
-	{
-		parent::initContent();
+if (!defined('_PS_VERSION_'))
+	exit;
 
-		$order = new Order((int)Tools::getValue('orderid'));
-		if (!Validate::isLoadedObject($order) || $order->id_customer != $this->context->cookie->id_customer)
-			die;
-		Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET sent = 1, date_add = NOW() WHERE id_order = '.(int)Tools::getValue('orderid').' LIMIT 1');
-		die;
-	}
+function upgrade_module_2_0_0($object)
+{
+	Configuration::updateValue('GANALYTICS', '2.0.0');
+
+	return Db::getInstance()->execute('
+		CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'ganalytics` (
+			`id_google_analytics` int(11) NOT NULL AUTO_INCREMENT,
+			`id_order` int(11) NOT NULL,
+			`sent` tinyint(1) DEFAULT NULL,
+			`date_add` datetime DEFAULT NULL,
+			PRIMARY KEY (`id_google_analytics`),
+			KEY `id_order` (`id_order`),
+			KEY `sent` (`sent`)
+		) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8 AUTO_INCREMENT=1');
 }

@@ -24,8 +24,9 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-class GoogleanalyticsActionModuleFrontController extends ModuleFrontController
+class GanalyticsActionModuleFrontController extends ModuleFrontController
 {
+	public $ssl = true;
 	/*
 	 * @see FrontController::initContent()
 	 */
