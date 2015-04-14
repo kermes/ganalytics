@@ -557,6 +557,7 @@ class Ganalytics extends Module
                     curl_setopt($ch,CURLOPT_RETURNTRANSFER, TRUE);
                     curl_setopt($ch,CURLOPT_POST, TRUE);
                     curl_setopt($ch,CURLOPT_POSTFIELDS, $content);
+                    curl_setopt($ch,CURLOPT_RETURNTRANSFER, TRUE);
                     curl_exec($ch);
                     curl_close($ch);
                     Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET sent = 1, date_add = NOW() WHERE id_order = '.(int)Tools::getValue('orderid').' LIMIT 1');
