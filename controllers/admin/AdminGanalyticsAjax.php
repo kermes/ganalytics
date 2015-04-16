@@ -24,7 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-class GanalyticsAjaxModuleFrontController extends ModuleFrontController
+class AdminGanalyticsAjaxController extends ModuleAdminController
 {
 	public $ssl = true;
 	/*
@@ -45,9 +45,12 @@ class GanalyticsAjaxModuleFrontController extends ModuleFrontController
                     die(json_encode($response));
                 }
 		$order = new Order((int)Tools::getValue('orderid'));
-		if (!Validate::isLoadedObject($order) || $order->id_customer != $this->context->cookie->id_customer)
-			die;
-		Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET sent = 1, date_add = NOW() WHERE id_order = '.(int)Tools::getValue('orderid'));
-		die;
+		$context = Context::getContext();
+		if (Validate::isLoadedObject($order) && (isset($context->employee->id) && $context->employee->id))
+		{
+			Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET sent = 1, date_add = NOW() WHERE id_order = '.(int)Tools::getValue('orderid'));
+			die('OK');
+		}
+		die('KO');
 	}
 }

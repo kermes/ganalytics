@@ -1,5 +1,5 @@
 /**
- * 2007-2014 PrestaShop
+ * 2007-2015 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -18,7 +18,7 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  *  @author    PrestaShop SA <contact@prestashop.com>
- *  @copyright 2007-2014 PrestaShop SA
+ *  @copyright 2007-2015 PrestaShop SA
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of PrestaShop SA
  **/
@@ -26,7 +26,7 @@
 /* globals $, ga, jQuery */
 
 var GoogleAnalyticEnhancedECommerce = {
-
+       
 	setCurrency: function(Currency) {
 		ga('set', '&cu', Currency);
 	},
@@ -105,6 +105,7 @@ var GoogleAnalyticEnhancedECommerce = {
 		ga('ec:setAction', 'refund', {
 			'id': Order.id // Transaction ID is only required field for full refund.
 		});
+		ga('send', 'event', 'Ecommerce', 'Refund', {'nonInteraction': 1});
 	},
 
 	refundByProduct: function(Order) {
@@ -114,9 +115,9 @@ var GoogleAnalyticEnhancedECommerce = {
 		//this.add(Product);
 
 		ga('ec:setAction', 'refund', {
-			'id': Order.Id, // Transaction ID is required for partial refund.
+			'id': Order.id, // Transaction ID is required for partial refund.
 		});
-		//ga('send', 'pageview');
+		ga('send', 'event', 'Ecommerce', 'Refund', {'nonInteraction': 1});
 	},
 
 	addProductClick: function(Product) {
@@ -152,18 +153,49 @@ var GoogleAnalyticEnhancedECommerce = {
 
 	},
 
-	addTransaction: function(Order) {
-
+	addTransaction: function(Order,ListProducts) {
 		//this.add(Product);
-		ga('ec:setAction', 'purchase', Order);
-		ga('send', 'pageview', {
-			'hitCallback': function() {
-				$.get(Order.url, {
-					orderid: Order.id
-				});
-			}
-		});
-
+                //console.log(ListProducts);
+                //console.log(Order.constructor);
+                if (Order.constructor === "string".constructor) {
+                    Order = JSON.parse(Order);
+                    console.log('URL:'+Order.url);
+                }
+                $.get( Order.url,{ checkorderid: Order.id },function() {
+                    //success
+                })
+                .done(function(data) {
+                  console.log("final success");
+                  //console.log('DATA:'+JSON.stringify(data));
+                  dataobj = JSON.parse(data);
+                  console.log(dataobj.result);
+                  //console.log(dataobj.value);
+                  if (dataobj.result ==='OK') {
+                      console.log('data result is ok');
+                      for (var i = 0; i < ListProducts.length; i++) {
+                          //productobj = JSON.parse(ListProducts[i]);
+                          GoogleAnalyticEnhancedECommerce.add(ListProducts[i]);
+                          console.log('adding');
+                      }
+                      
+                      ga('ec:setAction', 'purchase', Order);
+                      ga('send', 'event','Transaction','purchase', {
+                            'hitCallback': function() {
+                                    $.get(Order.url, {
+                                            orderid: Order.id
+                                    });
+                            }
+                      });
+                  } else if (dataobj.result ==='KO') {
+                      console.log('Data already sent to ga!');
+                  }                           	                              
+                })
+                .fail(function() {
+                  console.log("error on check sent order to ganalytics");
+                })
+                .always(function() {
+                  console.log("call to ga finished");
+                });		
 	},
 
 	addCheckout: function(Step) {
