@@ -647,7 +647,7 @@ class Ganalytics extends Module
 
             $this->context->smarty->assign('GA_ACCOUNT_ID', $ga_account_id);
 
-            if ($this->context->controller->controller_name == 'AdminOrders')
+            if ($this->context->controller->controller_name == 'AdminOrders' && !(Tools::getValue('id_order') >0))
             {
                 $ga_scripts = '';
                 
