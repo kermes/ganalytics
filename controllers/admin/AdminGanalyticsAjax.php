@@ -35,10 +35,11 @@ class AdminGanalyticsAjaxController extends ModuleAdminController
 		parent::initContent();
                 $checkorderid = (int)Tools::getValue('checkorderid');
                 if ($checkorderid > 0) {
-                    $ga_order_sent = Db::getInstance()->getValue('SELECT sent FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.$checkorderid.' AND id_google_analytics = (select MIN(id_google_analytics) from ps_ganalytics where id_order='.$checkorderid.')',false);
+                    $ga_order_sent = Db::getInstance()->getValue('SELECT sent FROM `'._DB_PREFIX_.'ganalytics` WHERE id_order = '.$checkorderid.' AND lock = 0 AND id_google_analytics = (select MIN(id_google_analytics) from ps_ganalytics where id_order='.$checkorderid.')',false);
                     
                     if ($ga_order_sent == 0) {
-                        $response = array("result"=>"OK","value"=>$ga_order_sent);                        
+                        $response = array("result"=>"OK","value"=>$ga_order_sent);
+                        Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET lock = 1 WHERE id_order = '.$checkorderid);
                     } else {
                         $response = array("result"=>"KO","value"=>$ga_order_sent);
                     }
@@ -48,7 +49,7 @@ class AdminGanalyticsAjaxController extends ModuleAdminController
 		$context = Context::getContext();
 		if (Validate::isLoadedObject($order) && (isset($context->employee->id) && $context->employee->id))
 		{
-			Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET sent = 1, date_add = NOW() WHERE id_order = '.(int)Tools::getValue('orderid'));
+			Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET sent = 1, lock = 0, date_add = NOW() WHERE id_order = '.(int)Tools::getValue('orderid'));
 			die('OK');
 		}
 		die('KO');
