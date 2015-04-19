@@ -41,6 +41,8 @@ class GanalyticsAjaxModuleFrontController extends ModuleFrontController
                         $response = array("result"=>"OK","value"=>$ga_order_sent);
                         Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'ganalytics` SET `lock` = 1 WHERE id_order = '.$checkorderid);
                     } else {
+                        $sql = 'UPDATE `'._DB_PREFIX_.'ganalytics` SET sent = 1, `lock` = 0 WHERE id_order = '.$checkorderid;
+                        Db::getInstance()->execute($sql,false);
                         $response = array("result"=>"KO","value"=>$ga_order_sent);
                     }
                     die(json_encode($response));
